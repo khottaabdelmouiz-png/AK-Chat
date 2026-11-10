@@ -289,9 +289,9 @@ akRenderNotebooks();akLoadNote();akRenderBooks();akRenderClips();
   data.akSocialPostAudience ??= {};
   data.akPostSerial ??= 0;
   data.akProfileTab ??= 'posts';
-  data.akSelectedBadges ??= ['veteran','vip','verified'];
+  data.akSelectedBadges ??= [];
   const validBadgeTypes=()=>Object.keys(akBadgeNames).filter(x=>x!=='owner');
-  function selectedBadges(){return data.akSelectedBadges.filter(t=>validBadgeTypes().includes(t)).slice(0,3)}
+  function selectedBadges(){return []} // Server-issued badges only
   function badgeMarkup(){return '<span class="ak-social-badges">'+selectedBadges().map(t=>akArt(t,true)).join('')+'</span>'}
   function ensurePostIds(){data.posts.forEach(p=>{if(!p.akId)p.akId='p'+(++data.akPostSerial)+'_'+(p.time||Date.now())});save()}
   ensurePostIds();
@@ -360,11 +360,11 @@ const OWNER_COVER='data:image/webp;base64,UklGRjx4AABXRUJQVlA4IDB4AADwrAKdASpfBe
 // This is a local owner preview, not secure identity verification.
 const ownerPreview=true;
 const types=Object.keys(akBadgeNames).filter(t=>t!=='verified');
-data.akSelectedBadges=Array.isArray(data.akSelectedBadges)?data.akSelectedBadges.filter(t=>types.includes(t)).slice(0,3):['veteran','vip','developer'];
-if(!data.akSelectedBadges.length && !data.akBadgesInitialized){data.akSelectedBadges=['veteran','vip','developer']}
+data.akSelectedBadges=Array.isArray(data.akSelectedBadges)?data.akSelectedBadges.filter(t=>types.includes(t)).slice(0,3):[];
+if(!data.akSelectedBadges.length && !data.akBadgesInitialized){data.akSelectedBadges=[]}
 data.akBadgesInitialized=true;
 if(!data.akCover){data.akCover=OWNER_COVER;save()}
-const chosen=()=>data.akSelectedBadges.filter(t=>types.includes(t)).slice(0,3);
+const chosen=()=>[]; // No client-side self-assigned badges
 const badgeLine=()=>'<span class="ak-badge-line">'+chosen().map(t=>akArt(t,true)).join('')+'</span>';
 const identity=()=>ownerPreview?'<img class="ak-owner-logo" src="'+OWNER_LOGO+'" title="شعار المالك التجريبي" alt="AK">':'<span class="ak-official-verified">✓</span>';
 const inline=()=>'<span class="ak-name-inline">'+identity()+chosen().map(t=>akArt(t,true)).join('')+'</span>';
@@ -446,7 +446,7 @@ renderProfile();renderPosts();
 #akOfficialOverlay{position:fixed;inset:0;z-index:90;background:#0b0f19;color:#fff;overflow-y:auto;display:none;font-family:system-ui,Tahoma,sans-serif;direction:rtl}
 #akOfficialOverlay.visible{display:block}.ak-official-shell{max-width:550px;margin:auto;padding-bottom:35px}.ak-official-cover{height:220px;background:radial-gradient(ellipse at 72% 20%,#ff3dab77,transparent 42%),radial-gradient(ellipse at 25% 75%,#00efff99,transparent 48%),linear-gradient(130deg,#101528,#291039,#092b3d);position:relative;border-radius:0 0 25px 25px;overflow:hidden}.ak-official-cover:before{content:'AK';position:absolute;font-size:160px;font-weight:1000;opacity:.16;left:50%;top:0;transform:translateX(-50%);color:#fff}.ak-official-top{position:absolute;top:15px;right:14px;left:14px;display:flex;justify-content:space-between;align-items:center}.ak-official-top button{background:#09111dbb;border:1px solid #ffffff55;color:white;padding:9px 16px;border-radius:14px}.ak-official-avatar{width:94px;height:94px;border-radius:50%;background:linear-gradient(135deg,#00efff,#ff3dab);display:grid;place-items:center;color:#08111a;font-size:38px;font-weight:1000;border:5px solid #0b0f19;box-shadow:0 0 22px #00efff77;margin:-49px 18px 0;position:relative}.ak-official-content{padding:12px 20px}.ak-official-name{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:900}.ak-owner-mark{display:inline-grid;place-items:center;width:31px;height:31px;border-radius:10px;background:linear-gradient(130deg,#00efff,#ff3dab);color:#07101c;font-weight:1000;letter-spacing:-3px;padding-right:3px;box-shadow:0 0 15px #00efff77}.ak-official-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:22px 0;text-align:center}.ak-official-stats div{background:#151e30;border:1px solid #293e54;padding:14px 3px;border-radius:15px}.ak-official-stats b{font-size:23px;display:block}.ak-official-stats small{color:#a7b7cb}.ak-official-note{font-size:12px;color:#b9c5d6;line-height:1.7}.ak-official-actions{display:flex;gap:9px}.ak-official-actions button{flex:1;padding:12px;border-radius:13px;border:1px solid #00efff66;background:#14263a;color:#fff;font-weight:700}.ak-official-actions button:first-child{background:linear-gradient(100deg,#00cbe9,#ec39a4);color:#06111a}.ak-official-preview{margin-top:20px;background:#141e30;border-radius:16px;padding:20px;border:1px solid #33425a;text-align:center}.ak-official-preview b{font-size:38px;background:linear-gradient(90deg,#00efff,#ff3dab);background-clip:text;color:transparent}
 </style>
-<div aria-label="الحساب الرسمي AK Chat" id="akOfficialOverlay"><div class="ak-official-shell"><div class="ak-official-cover"><div class="ak-official-top"><button onclick="akCloseOfficial()" type="button">→ رجوع</button><strong>الحساب الرسمي</strong></div></div><div class="ak-official-avatar">AK</div><div class="ak-official-content"><div class="ak-official-name">ak.official <span class="ak-owner-mark" title="شعار المالك">AK</span></div><div style="color:#a9b6ca;margin-top:6px">AK Chat • Official</div><div class="ak-official-stats"><div><b>12</b><small>منشورات نموذجية</small></div><div><b>100M</b><small>متابعون • رقم رمزي</small></div><div><b>0</b><small>يتابع</small></div></div><p>⚡ مستقبل التواصل، المعرفة والإبداع.</p><p class="ak-official-note">100M رقم رمزي ثابت في واجهة حساب الشركة، وليس عدد متابعين حقيقيًا موثقًا. يتم عرض الأعداد الحقيقية للحسابات الأخرى عند ربط قاعدة البيانات.</p><div class="ak-official-actions"><button onclick="alert('المتابعة الحقيقية تتطلب ربط الحسابات بالخادم')" type="button">متابعة</button><button onclick="akCloseOfficial();showPage('messages')" type="button">رسالة</button></div><div class="ak-official-preview"><b>AK CHAT</b><p>تصميم نيون مستقبلي • الملف الرسمي</p></div></div></div></div>
+<div aria-label="الحساب الرسمي AK Chat" id="akOfficialOverlay"><div class="ak-official-shell"><div class="ak-official-cover"><div class="ak-official-top"><button onclick="akCloseOfficial()" type="button">→ رجوع</button><strong>الحساب الرسمي</strong></div></div><div class="ak-official-avatar">AK</div><div class="ak-official-content"><div class="ak-official-name">ak.official <span class="ak-owner-mark" title="شعار المالك">AK</span></div><div style="color:#a9b6ca;margin-top:6px">AK Chat • Official</div><div class="ak-official-stats"><div><b>12</b><small>منشورات نموذجية</small></div><div><b>100M</b><small>هدف المتابعين</small></div><div><b>0</b><small>يتابع</small></div></div><p>⚡ مستقبل التواصل، المعرفة والإبداع.</p><div class="ak-official-actions"><button onclick="akFollowOfficial(this)" type="button">متابعة</button><button onclick="akCloseOfficial();showPage('messages')" type="button">رسالة</button></div><div class="ak-official-preview"><b>AK CHAT</b><p>تصميم نيون مستقبلي • الملف الرسمي</p></div></div></div></div>
 <script>
 function akOpenOfficial(){document.getElementById('akOfficialOverlay').classList.add('visible');}
 function akCloseOfficial(){document.getElementById('akOfficialOverlay').classList.remove('visible');}
@@ -1601,7 +1601,7 @@ const av=(n,ph)=>ph?`<img class="akav" style="width:36px;height:36px" src="${esc
 const notify=(to,type,post)=>{if(to!==U.uid)db.collection('users').doc(to).collection('n').add({type,from:U.username,fromUid:U.uid,post:post||null,created:F.serverTimestamp()})};
 const tags=x=>esc(x).replace(/#[\p{L}\p{N}_]+/gu,m=>`<span class="akh" data-tag="${m}">${m}</span>`);
 function card(d){const p=d.data(),id=d.id,lk=(p.likes||[]),on=lk.includes(U.uid),sv=me.saved.includes(id),mine=p.uid===U.uid,fl=me.following.includes(p.uid);
-return `<article class="post akpost" data-id="${id}" data-uid="${p.uid}"><div class="posthead">${av(p.username,p.photo)}<b>@${esc(p.username)}</b><span class="muted">• ${ago(p.created)}</span><span style="flex:1"></span>${mine?'<button class="akfb on" data-a="del">🗑</button>':`<button class="akfb${fl?' on':''}" data-a="fol">${fl?t('uf'):t('f')}</button>`}</div><div class="akim" data-a="dbl"><img loading="lazy" src="${esc(p.img)}" alt=""><div class="akheart">❤️</div></div><div class="actions"><button data-a="lk" class="${on?'on':''}">${on?'♥':'♡'}</button><button data-a="cm">💬</button><button data-a="sh">➤</button><span style="flex:1"></span><button data-a="sv" class="${sv?'on':''}">${sv?'★':'☆'}</button></div><div class="caption"><b>${lk.length} ${t('likes')}</b><div>${tags(p.cap)}</div></div></article>`}
+return `<article class="post akpost" data-id="${id}" data-uid="${p.uid}"><div class="posthead"><span data-a="profile" role="button" style="cursor:pointer;display:flex;align-items:center;gap:8px">${av(p.username,p.photo)}<b>@${esc(p.username)}</b></span><span class="muted">• ${ago(p.created)}</span><span style="flex:1"></span>${mine?'<button class="akfb on" data-a="del">🗑</button>':`<button class="akfb${fl?' on':''}" data-a="fol">${fl?t('uf'):t('f')}</button>`}</div><div class="akim" data-a="dbl"><img loading="lazy" src="${esc(p.img)}" alt=""><div class="akheart">❤️</div></div><div class="actions"><button data-a="lk" class="${on?'on':''}">${on?'♥':'♡'}</button><button data-a="cm">💬</button><button data-a="sh">➤</button><span style="flex:1"></span><button data-a="sv" class="${sv?'on':''}">${sv?'★':'☆'}</button></div><div class="caption"><b>${lk.length} ${t('likes')}</b><div>${tags(p.cap)}</div></div></article>`}
 function paint(){const f=$('akFeed');if(!f)return;let l=posts;if(tab==='fl')l=l.filter(d=>me.following.includes(d.data().uid)||d.data().uid===U.uid);
 f.innerHTML=`<div class="akcomp"><button data-a="new">${t('nw')}</button></div><div class="aktabs"><button data-a="tab" data-t="fy" class="${tab==='fy'?'on':''}">${t('fy')}</button><button data-a="tab" data-t="fl" class="${tab==='fl'?'on':''}">${t('fl')}</button></div>`+(l.length?l.map(card).join(''):`<p class="muted center" style="padding:30px">${t('empty')}</p>`)}
 const sheet=h=>{$('akShB').innerHTML=h;$('akSheet').hidden=false};
@@ -1616,22 +1616,30 @@ $('akCs').onclick=async()=>{const v=$('akCi').value.trim();if(!v)return;$('akCi'
 const o=new MutationObserver(()=>{if($('akSheet').hidden){un();o.disconnect()}});o.observe($('akSheet'),{attributes:true})}
 async function act(a,el,ev){const c=el.closest('.akpost'),id=c?.dataset.id,uid=c?.dataset.uid,ref=id&&db.collection('posts').doc(id);
 if(a==='new')return composer();if(a==='tab'){tab=el.dataset.t;return paint()}
+if(a==='profile'){
+ if(!uid)return;
+ try{const snap=await db.collection('users').doc(uid).get();if(!snap.exists)return alert('الحساب غير موجود');
+ const v=snap.data(),following=me.following.includes(uid);
+ sheet(`<div style="text-align:center">${av(v.username||'',v.photo||'')}<h2>${esc(v.display||v.username||'')}</h2><p>@${esc(v.username||'')}</p><p>${esc(v.bio||'')}</p><button id="akProfileFollow" class="pill">${uid===U.uid?'حسابك':following?t('uf'):t('f')}</button></div>`);
+ const fb=$('akProfileFollow');if(uid===U.uid)fb.disabled=true;else fb.onclick=()=>act('fol',{closest:()=>({dataset:{uid}})},ev).then(()=>{fb.textContent=me.following.includes(uid)?t('uf'):t('f')}).catch(err=>alert(err.message||err));
+ }catch(err){alert('تعذر فتح الحساب: '+(err.message||err))}return;
+ }
 if(a==='lk'||a==='dbl'){const d=posts.find(x=>x.id===id),on=(d.data().likes||[]).includes(U.uid);if(a==='dbl'){const h=c.querySelector('.akheart');h.classList.remove('go');void h.offsetWidth;h.classList.add('go');if(on)return}
 await ref.update({likes:on?F.arrayRemove(U.uid):F.arrayUnion(U.uid)});if(!on)notify(uid,'lk',id)}
 if(a==='cm')comments(id,uid);
 if(a==='sv'){const on=me.saved.includes(id);await db.collection('users').doc(U.uid).set({saved:on?F.arrayRemove(id):F.arrayUnion(id)},{merge:true})}
-if(a==='fol'){const on=me.following.includes(uid);await db.collection('users').doc(U.uid).set({following:on?F.arrayRemove(uid):F.arrayUnion(uid)},{merge:true});if(!on)notify(uid,'fo')}
+if(a==='fol'){if(!uid||uid===U.uid)return;const on=me.following.includes(uid);await db.collection('users').doc(U.uid).set({following:on?F.arrayRemove(uid):F.arrayUnion(uid)},{merge:true});me.following=on?me.following.filter(x=>x!==uid):[...me.following,uid];if(!on)notify(uid,'fo').catch(console.warn);paint();const q=$('akSq');if(q&&q.value)q.dispatchEvent(new Event('input'));}
 if(a==='del'&&confirm(t('del')))await ref.delete();
 if(a==='sh'){const u=location.href.split('#')[0]+'#p='+id;navigator.share?navigator.share({title:'AK Chat',url:u}).catch(()=>{}):navigator.clipboard.writeText(u).then(()=>alert(t('cp')))}}
 let lastTap=0;
 document.addEventListener('click',e=>{const h=e.target.closest('.akh');if(h){tab='fy';const q=h.dataset.tag;$('akFeed').querySelectorAll('.akpost').forEach(x=>x.style.display=x.textContent.includes(q)?'':'none');return}
 const b=e.target.closest('#akFeed [data-a],#akSrch [data-a],#akNotifs [data-a]');if(!b)return;const a=b.dataset.a;
 if(a==='dbl'){const n=Date.now();if(n-lastTap<350){lastTap=0;act('dbl',b)}else lastTap=n;return}
-if(a==='ufol'){return}act(a,b)});
+if(a==='ufol'){return}act(a,b).catch(err=>alert('تعذر تنفيذ العملية: '+(err.message||err)))});
 /* بحث الأشخاص */
 function srch(){const s=$('search');if(!s||$('akSrch'))return;s.insertAdjacentHTML('afterbegin',`<div id="akSrch" class="section"><input class="search" id="akSq" placeholder="${t('sr')}"><div id="akSr"></div></div>`);
 $('akSq').oninput=async e=>{const q=e.target.value.trim().toLowerCase().replace(/^@/,'');if(!q)return $('akSr').innerHTML='';const r=await db.collection('users').orderBy('username').startAt(q).endAt(q+'\uf8ff').limit(10).get();
-$('akSr').innerHTML=r.empty?`<p class="muted">${t('no')}</p>`:r.docs.filter(d=>d.id!==U.uid).map(d=>{const u=d.data(),on=me.following.includes(d.id);return`<div class="chatitem akpost" data-uid="${d.id}">${av(u.username,u.photo)}<div class="grow"><b>@${esc(u.username)}</b><div class="muted">${esc(u.display||'')}</div></div><button class="akfb${on?' on':''}" data-a="fol">${on?t('uf'):t('f')}</button></div>`}).join('')}}
+$('akSr').innerHTML=r.empty?`<p class="muted">${t('no')}</p>`:r.docs.filter(d=>d.id!==U.uid).map(d=>{const u=d.data(),on=me.following.includes(d.id);return`<div class="chatitem akpost" data-uid="${d.id}">${av(u.username,u.photo)}<div class="grow" role="button" tabindex="0" data-a="profile"><b>@${esc(u.username)}</b><div class="muted">${esc(u.display||'')}</div></div><button class="akfb${on?' on':''}" data-a="fol">${on?t('uf'):t('f')}</button></div>`}).join('')}}
 /* الإشعارات */
 function notifs(){const s=$('notifications');if(s&&!$('akNotifs'))s.insertAdjacentHTML('afterbegin','<div id="akNotifs" class="section"></div>');
 stops.push(db.collection('users').doc(U.uid).collection('n').orderBy('created','desc').limit(30).onSnapshot(q=>{const n=$('akNotifs');if(n)n.innerHTML=q.empty?`<p class="muted center">${t('nn')}</p>`:q.docs.map(d=>{const x=d.data();return`<div class="aknote"><b>@${esc(x.from)}</b> ${t(x.type)}<span class="muted"> • ${ago(x.created)}</span></div>`}).join('');
@@ -1665,4 +1673,33 @@ auth.onAuthStateChanged(async fu=>{stops.forEach(f=>f());stops=[];U=null;
 if(!fu){$('akP2')?.remove();return akUI.showGate()}
 if(fu.providerData.some(x=>x.providerId==='password')&&!fu.emailVerified)return verify(fu);
 try{const d=await db.collection('users').doc(fu.uid).get();if(d.exists&&d.data().username)start(fu,d.data());else profile(fu)}catch(e){scr(`<p class="sub">${esc(e.code||e.message)}</p><button class="main" id="akRt">↻</button>`);$('akRt').onclick=()=>location.reload()}})})();
-})();</script></body></html>
+})();</script><script>
+window.akFollowOfficial=async function(btn){
+ btn.disabled=true;
+ try{
+  if(!window.firebase?.apps?.length)throw Error('Firebase غير جاهز');
+  const auth=firebase.auth(),user=auth.currentUser;if(!user)throw Error('سجّل الدخول أولًا');
+  const db=firebase.firestore(),F=firebase.firestore.FieldValue;
+  const found=await db.collection('users').where('username','==','ak.official').limit(1).get();
+  if(found.empty)throw Error('يجب إنشاء الحساب الرسمي ak.official في Firebase أولًا');
+  const id=found.docs[0].id;if(id===user.uid)throw Error('لا يمكنك متابعة حسابك');
+  const ref=db.collection('users').doc(user.uid),me=await ref.get(),arr=me.data()?.following||[];
+  const on=arr.includes(id);await ref.set({following:on?F.arrayRemove(id):F.arrayUnion(id)},{merge:true});
+  btn.textContent=on?'متابعة':'إلغاء المتابعة';
+ }catch(e){alert('تعذر متابعة الشركة: '+(e.message||e))}finally{btn.disabled=false}
+};
+</script><script>
+(function(){
+ const old=window.viewStory;
+ window.viewStory=function(i){
+  if(typeof data==='undefined'||!data.stories?.[i])return old?.(i);
+  old?.(i);
+  const host=document.getElementById('akStoryFooter')||document.getElementById('modalBody');
+  if(!host)return;
+  host.querySelector('#akRemoveMyStory')?.remove();
+  const b=document.createElement('button');b.id='akRemoveMyStory';b.type='button';b.className='outline';b.textContent='🗑 حذف قصتي من هذا الجهاز';
+  b.onclick=()=>{if(!confirm('حذف هذه القصة نهائيًا من هذا الجهاز؟'))return;
+   data.stories.splice(i,1);save();renderStories();window.akCloseStory?.();window.closeModal?.();};host.appendChild(b);
+ };
+})();
+</script></body></html>
